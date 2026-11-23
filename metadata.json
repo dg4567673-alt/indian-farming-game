@@ -1,0 +1,6 @@
+{
+  "name": "Shubham Farming Simulator",
+  "description": "An interactive Indian village farming and heavy machinery simulator featuring tractors, harvesters, JCBs, trucks, livestock, village market, and petrol pump.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

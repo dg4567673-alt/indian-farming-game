@@ -1,0 +1,213 @@
+{
+  "entities": {
+    "FarmSave": {
+      "title": "FarmSave",
+      "description": "Persistent player farm progress, machinery fleet, fields, livestock, seeds, crops, and fuel reserve for Shubham Farming Simulator.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase user UID owning this farm save."
+        },
+        "farmerName": {
+          "type": "string",
+          "description": "Player display name shown on farm board."
+        },
+        "coins": {
+          "type": "integer",
+          "description": "In-game Indian Rupees currency balance."
+        },
+        "level": {
+          "type": "integer",
+          "description": "Current farmer level."
+        },
+        "xp": {
+          "type": "integer",
+          "description": "Experience points earned from farming and trading."
+        },
+        "dayCount": {
+          "type": "integer",
+          "description": "Current simulated village day."
+        },
+        "activeVehicleId": {
+          "type": "string",
+          "description": "Identifier of currently selected/driven vehicle."
+        },
+        "unlockedVehicles": {
+          "type": "array",
+          "description": "List of unlocked vehicle IDs owned by the player."
+        },
+        "fieldStates": {
+          "type": "array",
+          "description": "Encoded state strings for each farm field plot (cropType:stage:progress)."
+        },
+        "cowCount": {
+          "type": "integer",
+          "description": "Number of cows in the village shed."
+        },
+        "buffaloCount": {
+          "type": "integer",
+          "description": "Number of buffaloes in the village shed."
+        },
+        "goatCount": {
+          "type": "integer",
+          "description": "Number of goats in the village shed."
+        },
+        "henCount": {
+          "type": "integer",
+          "description": "Number of hens in the farm coop."
+        },
+        "fodderCount": {
+          "type": "integer",
+          "description": "Available green fodder bundles for animals."
+        },
+        "milkCount": {
+          "type": "integer",
+          "description": "Collected milk cans ready to sell at village market."
+        },
+        "wheatSeeds": {
+          "type": "integer",
+          "description": "Wheat seed packets in inventory."
+        },
+        "riceSeeds": {
+          "type": "integer",
+          "description": "Paddy/rice seed packets in inventory."
+        },
+        "sugarcaneSeeds": {
+          "type": "integer",
+          "description": "Sugarcane seed sets in inventory."
+        },
+        "mustardSeeds": {
+          "type": "integer",
+          "description": "Mustard seed packets in inventory."
+        },
+        "wheatStock": {
+          "type": "integer",
+          "description": "Harvested wheat sacks in storage/trolley."
+        },
+        "riceStock": {
+          "type": "integer",
+          "description": "Harvested rice sacks in storage/trolley."
+        },
+        "sugarcaneStock": {
+          "type": "integer",
+          "description": "Harvested sugarcane bundles in storage/trolley."
+        },
+        "mustardStock": {
+          "type": "integer",
+          "description": "Harvested mustard sacks in storage/trolley."
+        },
+        "fuelReserve": {
+          "type": "integer",
+          "description": "Current diesel fuel percentage (0-100)."
+        },
+        "missionsCompleted": {
+          "type": "integer",
+          "description": "Count of completed village farming missions."
+        },
+        "totalHarvested": {
+          "type": "integer",
+          "description": "Lifetime crop units harvested."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when farm save was created (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when farm save was last updated (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "farmerName",
+        "coins",
+        "level",
+        "xp",
+        "dayCount",
+        "activeVehicleId",
+        "unlockedVehicles",
+        "fieldStates",
+        "cowCount",
+        "buffaloCount",
+        "goatCount",
+        "henCount",
+        "fodderCount",
+        "milkCount",
+        "wheatSeeds",
+        "riceSeeds",
+        "sugarcaneSeeds",
+        "mustardSeeds",
+        "wheatStock",
+        "riceStock",
+        "sugarcaneStock",
+        "mustardStock",
+        "fuelReserve",
+        "missionsCompleted",
+        "totalHarvested",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "MarketLog": {
+      "title": "MarketLog",
+      "description": "Immutable transaction record for Village Market sales, Petrol Pump refills, and machinery or livestock purchases.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase user UID."
+        },
+        "title": {
+          "type": "string",
+          "description": "Human-readable description of transaction."
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "CROP_SALE",
+            "MILK_SALE",
+            "VEHICLE_BUY",
+            "ANIMAL_BUY",
+            "FUEL_BUY",
+            "SEED_BUY",
+            "MISSION_REWARD"
+          ],
+          "description": "Transaction category."
+        },
+        "amountCoins": {
+          "type": "integer",
+          "description": "Net coin delta (positive for earnings, negative for spend)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of transaction (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "category",
+        "amountCoins",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/farms/{farmId}": {
+      "schema": {
+        "$ref": "#/entities/FarmSave"
+      },
+      "description": "User-scoped farm save documents."
+    },
+    "/users/{userId}/market_logs/{logId}": {
+      "schema": {
+        "$ref": "#/entities/MarketLog"
+      },
+      "description": "User-scoped market and petrol pump transaction history."
+    }
+  }
+}

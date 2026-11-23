@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Shubham Farming Simulator</string>
+    <string name="auth_title">Shubham Farming Simulator</string>
+    <string name="auth_subtitle">गाँव की खेती, ट्रैक्टर, हार्वेस्टर, JCB, पशु बाड़ा और मंडी</string>
+    <string name="sign_in_google">Google से साइन इन करें</string>
+    <string name="sign_out">साइन आउट</string>
+    <string name="cloud_synced">क्लाउड सेव</string>
+    <string name="market_title">गाँव का बाजार (मंडी)</string>
+    <string name="petrol_pump_title">भारत पेट्रोल पंप</string>
+    <string name="livestock_title">पशु बाड़ा और डेयरी</string>
+    <string name="missions_title">आज के मिशन और खाता</string>
+    <string name="error_generic">कुछ समस्या आई है, कृपया पुनः प्रयास करें।</string>
+</resources>

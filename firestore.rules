@@ -1,0 +1,169 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global safety net: deny all unmatched paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isNonNegInt(val, maxVal) {
+      return val is int && val >= 0 && val <= maxVal;
+    }
+
+    function isValidFarmSave(data, userId) {
+      return data.userId is string &&
+             data.userId == userId &&
+             data.userId == request.auth.uid &&
+             data.farmerName is string &&
+             data.farmerName.size() >= 1 &&
+             data.farmerName.size() <= 50 &&
+             isNonNegInt(data.coins, 100000000) &&
+             data.level is int && data.level >= 1 && data.level <= 1000 &&
+             isNonNegInt(data.xp, 100000000) &&
+             data.dayCount is int && data.dayCount >= 1 && data.dayCount <= 100000 &&
+             data.activeVehicleId is string &&
+             data.activeVehicleId.size() >= 1 &&
+             data.activeVehicleId.size() <= 40 &&
+             data.unlockedVehicles is list &&
+             data.unlockedVehicles.size() >= 1 &&
+             data.unlockedVehicles.size() <= 20 &&
+             data.unlockedVehicles[0] is string &&
+             data.fieldStates is list &&
+             data.fieldStates.size() >= 1 &&
+             data.fieldStates.size() <= 16 &&
+             data.fieldStates[0] is string &&
+             isNonNegInt(data.cowCount, 500) &&
+             isNonNegInt(data.buffaloCount, 500) &&
+             isNonNegInt(data.goatCount, 500) &&
+             isNonNegInt(data.henCount, 500) &&
+             isNonNegInt(data.fodderCount, 10000) &&
+             isNonNegInt(data.milkCount, 10000) &&
+             isNonNegInt(data.wheatSeeds, 10000) &&
+             isNonNegInt(data.riceSeeds, 10000) &&
+             isNonNegInt(data.sugarcaneSeeds, 10000) &&
+             isNonNegInt(data.mustardSeeds, 10000) &&
+             isNonNegInt(data.wheatStock, 100000) &&
+             isNonNegInt(data.riceStock, 100000) &&
+             isNonNegInt(data.sugarcaneStock, 100000) &&
+             isNonNegInt(data.mustardStock, 100000) &&
+             isNonNegInt(data.fuelReserve, 100) &&
+             isNonNegInt(data.missionsCompleted, 10000) &&
+             isNonNegInt(data.totalHarvested, 1000000) &&
+             data.createdAt is timestamp &&
+             data.createdAt <= request.time &&
+             data.updatedAt is timestamp &&
+             data.updatedAt <= request.time;
+    }
+
+    function isSyncFarmAction() {
+      return incoming().diff(existing()).affectedKeys().hasOnly([
+        'coins', 'level', 'xp', 'dayCount', 'activeVehicleId',
+        'unlockedVehicles', 'fieldStates', 'cowCount', 'buffaloCount',
+        'goatCount', 'henCount', 'fodderCount', 'milkCount',
+        'wheatSeeds', 'riceSeeds', 'sugarcaneSeeds', 'mustardSeeds',
+        'wheatStock', 'riceStock', 'sugarcaneStock', 'mustardStock',
+        'fuelReserve', 'missionsCompleted', 'totalHarvested', 'updatedAt'
+      ]);
+    }
+
+    function isRenameFarmerAction() {
+      return incoming().diff(existing()).affectedKeys().hasOnly(['farmerName', 'updatedAt']);
+    }
+
+    function isValidMarketLog(data, userId) {
+      return data.userId is string &&
+             data.userId == userId &&
+             data.userId == request.auth.uid &&
+             data.title is string &&
+             data.title.size() >= 1 &&
+             data.title.size() <= 100 &&
+             data.category is string &&
+             data.category in [
+               'CROP_SALE', 'MILK_SALE', 'VEHICLE_BUY',
+               'ANIMAL_BUY', 'FUEL_BUY', 'SEED_BUY', 'MISSION_REWARD'
+             ] &&
+             data.amountCoins is int &&
+             data.amountCoins >= -10000000 &&
+             data.amountCoins <= 10000000 &&
+             data.createdAt is timestamp &&
+             data.createdAt <= request.time;
+    }
+
+    match /users/{userId}/farms/{farmId} {
+      allow list: if isOwner(userId);
+      allow get: if isOwner(userId) && isValidId(farmId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(farmId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'farmerName', 'coins', 'level', 'xp', 'dayCount',
+                         'activeVehicleId', 'unlockedVehicles', 'fieldStates',
+                         'cowCount', 'buffaloCount', 'goatCount', 'henCount',
+                         'fodderCount', 'milkCount',
+                         'wheatSeeds', 'riceSeeds', 'sugarcaneSeeds', 'mustardSeeds',
+                         'wheatStock', 'riceStock', 'sugarcaneStock', 'mustardStock',
+                         'fuelReserve', 'missionsCompleted', 'totalHarvested',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'farmerName', 'coins', 'level', 'xp', 'dayCount',
+                         'activeVehicleId', 'unlockedVehicles', 'fieldStates',
+                         'cowCount', 'buffaloCount', 'goatCount', 'henCount',
+                         'fodderCount', 'milkCount',
+                         'wheatSeeds', 'riceSeeds', 'sugarcaneSeeds', 'mustardSeeds',
+                         'wheatStock', 'riceStock', 'sugarcaneStock', 'mustardStock',
+                         'fuelReserve', 'missionsCompleted', 'totalHarvested',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidFarmSave(incoming(), userId);
+
+      allow update: if isOwner(userId) &&
+                       isValidId(farmId) &&
+                       isValidFarmSave(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       (isSyncFarmAction() || isRenameFarmerAction());
+
+      allow delete: if isOwner(userId) && isValidId(farmId);
+    }
+
+    match /users/{userId}/market_logs/{logId} {
+      allow list: if isOwner(userId);
+      allow get: if isOwner(userId) && isValidId(logId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(logId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'title', 'category', 'amountCoins', 'createdAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'title', 'category', 'amountCoins', 'createdAt'
+                       ]) &&
+                       isValidMarketLog(incoming(), userId);
+
+      allow update: if false;
+      allow delete: if isOwner(userId) && isValidId(logId);
+    }
+  }
+}
